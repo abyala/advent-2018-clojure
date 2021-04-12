@@ -1,4 +1,4 @@
-(ns advent-2018-clojure.day09
+(ns advent-2018-clojure.day09-map
   (:refer-clojure :exclude [remove]))
 
 ;; This is by far the best of the algorithms I came up with.

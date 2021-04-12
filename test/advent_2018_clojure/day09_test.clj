@@ -1,6 +1,6 @@
 (ns advent-2018-clojure.day09-test
   (:require [clojure.test :refer :all])
-  (:use [advent-2018-clojure.day09 :only [part1 part2]]))
+  (:use [advent-2018-clojure.day09-map :only [part1 part2]]))
 
 (def PUZZLE_NUM_PLAYERS 411)
 (def PUZZLE_LAST_MARBLE 71170)
