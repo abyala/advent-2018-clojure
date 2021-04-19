@@ -32,10 +32,11 @@
 (defn star-message [input]
   (->> (parse-stars input)
        (iterate move-stars)
+       (map #(vector (star-bounding-box-size %) %))
        (partition 2 1)
-       (keep-indexed (fn [idx [a b]] (when (< (star-bounding-box-size a)
-                                              (star-bounding-box-size b))
-                                       [idx a])))
+       (keep-indexed (fn [idx [[a-size a] [b-size _]]]
+                       (when (< a-size b-size)
+                         [idx a])))
        first))
 
 (defn part1 [input]
