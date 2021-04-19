@@ -9,12 +9,6 @@
 (defn parse-input [text]
   (->> (str/split-lines text) (map parse-point)))
 
-(defn bounding-box [points]
-  (letfn [(min-max [nums] ((juxt (partial apply min) (partial apply max)) nums))]
-    (let [[x-min x-max] (->> points (map first) (min-max))
-          [y-min y-max] (->> points (map second) (min-max))]
-      [[x-min y-min] [x-max y-max]])))
-
 (defn perimeter-points [[x1 y1] [x2 y2]]
   (let [outer-ys (range y1 (inc y2))
         inner-xs (range (inc x1) x2)]
@@ -22,11 +16,6 @@
             (mapv #(vector x2 %) outer-ys)
             (mapv #(vector % y1) inner-xs)
             (mapv #(vector % y2) inner-xs))))
-
-(defn all-points [[x1 y1] [x2 y2]]
-  (for [x (range x1 (inc x2))
-        y (range y1 (inc y2))]
-    [x y]))
 
 (defn closest [target points]
   (let [options (->> points
@@ -40,10 +29,10 @@
 
 (defn part1 [input]
   (let [points (parse-input input)
-        [corner1 corner2] (bounding-box points)
+        [corner1 corner2] (point/bounding-box points)
         perimeter (perimeter-points corner1 corner2)
         all-closest (keep #(closest % points)
-                          (all-points corner1 corner2))
+                          (point/all-points corner1 corner2))
         infinites (->> perimeter
                        (keep #(closest % points))
                        set)]
@@ -58,9 +47,8 @@
        (apply +)))
 
 (defn part2 [input sum-below]
-  (let [points (parse-input input)
-        [corner1 corner2] (bounding-box points)]
-    (->> (all-points corner1 corner2)
+  (let [points (parse-input input)]
+    (->> (point/bounding-box-points points)
          (map #(sum-of-distances % points))
          (filter #(< % sum-below))
          (count))))
