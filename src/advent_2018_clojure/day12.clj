@@ -1,7 +1,5 @@
 (ns advent-2018-clojure.day12
-  (:require [clojure.string :as str]
-            [clojure.set :as set]
-            [advent-2018-clojure.utils :refer [unless=]]))
+  (:require [clojure.string :as str]))
 
 (def plant-char \#)
 (def no-plant-char \.)
