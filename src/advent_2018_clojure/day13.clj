@@ -6,8 +6,8 @@
 (defn next-intersection-dir [dir] ({:left     :straight
                                     :straight :right
                                     :right    :left} dir))
-
 (defrecord Cart [coords dir next-intersection])
+
 (def directions
   {:north {:straight :north, :left :west, :right :east, :slash :east, :backslash :west}
    :east  {:straight :east, :left :north, :right :south, :slash :north, :backslash :south}
@@ -20,7 +20,7 @@
                                    c->dir (assoc-in state [:carts coords] (->Cart coords (c->dir c) :left))
                                    state))
           {:cells {} :carts {} :crashes []}
-          (utils/parse-to-coord-map input)))
+          (utils/parse-to-char-coords input)))
 
 (defn move-forward [coords dir]
   (mapv + coords (case dir

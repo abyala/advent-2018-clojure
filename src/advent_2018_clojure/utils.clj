@@ -18,12 +18,10 @@
   [f coll]
   (apply concat (map-indexed f coll)))
 
-(defn parse-to-coord-map
-  "Given an input string, returns a map of [x y] coordinates to each character"
-  ([input] (parse-to-coord-map input any?))
-  ([input f] (->> (str/split-lines input)
-                  (mapcat-indexed (fn [y line]
-                                    (->> line
-                                         (keep-indexed (fn [x c] (when (f c) [[x y] c])))
-                                         (apply concat))))
-                  (apply array-map))))
+(defn parse-to-char-coords
+  "Given an input string, returns a lazy sequence of [[x y] c] tuples of [x y] coords to each character c."
+  [input]
+  (->> (str/split-lines input)
+       (map-indexed (fn [y line]
+                      (map-indexed (fn [x c] [[x y] c]) line)))
+       (apply concat)))
