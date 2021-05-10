@@ -29,8 +29,9 @@
                    :west [-1 0]
                    :east [1 0])))
 
-(defn adjust-direction [state {:keys [dir next-intersection] :as cart} new-coords]
-  (let [cell ((state :cells) new-coords)]
+(defn move-cart [state {:keys [coords dir next-intersection] :as cart}]
+  (let [new-coords (move-forward coords dir)
+        cell ((state :cells) new-coords)]
     (case cell
       nil (assoc cart :coords new-coords)
       :intersection (->Cart new-coords
@@ -38,15 +39,11 @@
                             (next-intersection-dir next-intersection))
       (->Cart new-coords (-> directions dir cell) next-intersection))))
 
-(defn collides? [state coords]
-  (some #(= coords %) (-> state :carts keys)))
-
-(defn move-cart [state {:keys [coords dir] :as cart}]
-  (let [new-coords (move-forward coords dir)]
-    (adjust-direction state cart new-coords)))
-
 (defn coord-sort [coords]
   (sort-by (juxt first second) coords))
+
+(defn collides? [state coords]
+  (some #(= coords %) (-> state :carts keys)))
 
 (defn next-turn [state]
   (reduce (fn [next-state coords]
