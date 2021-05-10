@@ -1,9 +1,7 @@
 (ns advent-2018-clojure.day13
   (:require [advent-2018-clojure.utils :as utils]))
 
-(defn intersection? [c] (= \+ c))
-(defn turn? [c] (#{\\ \/} c))
-(defn c->turn [c] ({\\ :backslash \/ :slash} c))
+(defn c->path [c] ({\\ :backslash \/ :slash \+ :intersection} c))
 (defn c->dir [c] ({\^ :north \v :south \> :east \< :west} c))
 (defn next-intersection-dir [dir] ({:left     :straight
                                     :straight :right
@@ -18,8 +16,7 @@
 
 (defn parse-input [input]
   (reduce (fn [state [coords c]] (condp apply [c]
-                                   intersection? (assoc-in state [:cells coords] :intersection)
-                                   turn? (assoc-in state [:cells coords] (c->turn c))
+                                   c->path (assoc-in state [:cells coords] (c->path c))
                                    c->dir (assoc-in state [:carts coords] (->Cart coords (c->dir c) :left))
                                    state))
           {:cells {} :carts {} :crashes []}
@@ -53,20 +50,29 @@
 
 (defn next-turn [state]
   (reduce (fn [next-state coords]
-            (let [cart (move-cart next-state ((next-state :carts) coords))
-                  new-coords (:coords cart)]
-              (if (collides? next-state new-coords)
-                (-> next-state
-                    (update :carts #(apply dissoc % [coords new-coords]))
-                    (update :crashes conj new-coords))
-                (update next-state :carts #(-> (dissoc % coords)
-                                               (assoc new-coords cart))))))
+            (if-let [old-cart ((next-state :carts) coords)] ; Make sure cart hasn't been hit yet
+              (let [cart (move-cart next-state old-cart)
+                    new-coords (:coords cart)]
+                (if (collides? next-state new-coords)
+                  (-> next-state
+                      (update :carts #(apply dissoc % [coords new-coords]))
+                      (update :crashes conj new-coords))
+                  (update next-state :carts #(-> (dissoc % coords)
+                                                 (assoc new-coords cart)))))
+              next-state))
           state
           (coord-sort (-> state :carts keys))))
 
 (defn part1 [input]
-  (let [state (parse-input input)]
-    (->> (iterate next-turn state)
-         (map :crashes)
-         (filter seq)
-         ffirst)))
+  (->> (parse-input input)
+       (iterate next-turn)
+       (map :crashes)
+       (filter seq)
+       ffirst))
+
+(defn part2 [input]
+  (->> (parse-input input)
+       (iterate next-turn)
+       (map (comp keys :carts))
+       (filter #(= 1 (count %)))
+       ffirst))
