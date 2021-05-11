@@ -31,16 +31,16 @@
 
 (defn move-cart [state {:keys [coords dir next-intersection] :as cart}]
   (let [new-coords (move-forward coords dir)
-        cell ((state :cells) new-coords)]
+        cell (get (:cells state) new-coords :straightaway)]
     (case cell
-      nil (assoc cart :coords new-coords)
+      :straightaway (assoc cart :coords new-coords)
       :intersection (->Cart new-coords
                             (-> directions dir next-intersection)
                             (next-intersection-dir next-intersection))
       (->Cart new-coords (-> directions dir cell) next-intersection))))
 
 (defn coord-sort [coords]
-  (sort-by (juxt first second) coords))
+  (sort-by (juxt second first) coords))
 
 (defn collides? [state coords]
   (some #(= coords %) (-> state :carts keys)))
