@@ -125,10 +125,11 @@ things, then it's a turn, so again call `directions` with the cell's `slash` or 
         cell (get (:cells state) new-coords :straightaway)]
     (case cell
       :straightaway (assoc cart :coords new-coords)
-      :intersection (->Cart new-coords
-                            (-> directions dir next-intersection)
-                            (next-intersection-dir next-intersection))
-      (->Cart new-coords (-> directions dir cell) next-intersection))))
+      :intersection (assoc cart :coords new-coords
+                                :dir (-> directions dir next-intersection)
+                                :next-intersection (next-intersection-dir next-intersection))
+      (assoc cart :coords new-coords
+                  :dir (-> directions dir cell)))))
 ```
 
 Our goal is leading up to the `next-turn` function, which will take a current state and move all of the carts. To do
@@ -186,6 +187,13 @@ cart that exploded, we can skip over the cart if it's no longer there.
            state
            (coord-sort (-> state :carts keys))))
 ```
+
+_Note:_ After writing this out, I think there's a bug in my algorithm, but it didn't show up in the puzzle, so I might
+not fix it. If Carts A and B both want to move into the position where cart C is, and the pre-defined order of carts
+is A-B-C, then I think this breaks. A would bump into C, then B would move in, resulting in cart B appearing where cart
+C used to be. But in my algorithm, we will not have removed cart C from the sorted coordinates, and thus cart B, being
+where cart C used to be, would move a second time. Eh; bad algorithm, but it happened to work. Potential future 
+recruiters - please skip past this admission! :)
 
 Alright, time to finish part 1 by putting it all together. All we need to know are the coordinates of the first crash.
 So after parsing the input, we iterate on the `next-turn` function, map it to the `:crashes` vector, and filter out

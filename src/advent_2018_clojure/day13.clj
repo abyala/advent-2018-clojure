@@ -34,10 +34,11 @@
         cell (get (:cells state) new-coords :straightaway)]
     (case cell
       :straightaway (assoc cart :coords new-coords)
-      :intersection (->Cart new-coords
-                            (-> directions dir next-intersection)
-                            (next-intersection-dir next-intersection))
-      (->Cart new-coords (-> directions dir cell) next-intersection))))
+      :intersection (assoc cart :coords new-coords
+                                :dir (-> directions dir next-intersection)
+                                :next-intersection (next-intersection-dir next-intersection))
+      (assoc cart :coords new-coords
+                  :dir (-> directions dir cell)))))
 
 (defn coord-sort [coords]
   (sort-by (juxt second first) coords))
