@@ -142,7 +142,7 @@ the coordinates (`y`) before the first argument (`x`).
 
 ```clojure
 (defn coord-sort [coords]
-  (sort-by (juxt first second) coords))
+  (sort-by (juxt second first) coords))
 ```
 
 That's all well and good, but we were promised exploding carts, and I'm thoroughly disappointed at the lack of
