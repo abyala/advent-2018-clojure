@@ -25,3 +25,17 @@
        (map-indexed (fn [y line]
                       (map-indexed (fn [x c] [[x y] c]) line)))
        (apply concat)))
+
+(defn char->int
+  "Converts a numeric character into its integer value"
+  [c]
+  (when c
+    (try (Integer/parseInt (str c))
+         (catch NumberFormatException _ nil))))
+
+(defn str->ints
+  "Converts a numeric string into a sequence of integers"
+  [s]
+  (when s
+    (let [chars (map char->int (str s))]
+      (when (every? some? chars) chars))))
