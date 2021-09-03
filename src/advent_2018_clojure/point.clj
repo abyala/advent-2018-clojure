@@ -17,3 +17,11 @@
 
 (defn bounding-box-points [points]
   (->> points bounding-box (apply all-points)))
+
+(def point-sort (juxt second first))
+
+(defn adjacent-points [[x y]]
+  [[x (dec y)]
+   [(dec x) y]
+   [(inc x) y]
+   [x (inc y)]])
