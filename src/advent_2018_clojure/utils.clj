@@ -39,3 +39,6 @@
   (when s
     (let [chars (map char->int (str s))]
       (when (every? some? chars) chars))))
+
+(defn dos2unix [text]
+  (str/replace text "\r" ""))
