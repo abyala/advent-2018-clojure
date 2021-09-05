@@ -6,3 +6,6 @@
 
 (deftest part1-test
   (is (= 651 (part1 PUZZLE_DATA))))
+
+(deftest part2-test
+  (is (= 706 (part2 PUZZLE_DATA))))
