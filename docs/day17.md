@@ -80,7 +80,7 @@ gets the bounded box. Then we map every possible point in the bounded box to `:s
 
 ```clojure
 (defn parse-board [input]
-  (let [clay-points (set (parse-input input))
+  (let [clay-points (parse-input input)
         {:keys [min-x max-x min-y max-y]} (bounded-box clay-points)]
     (into {} (concat (map vector (point/all-points [min-x min-y] [max-x max-y]) (repeat :sand))
                      (map vector clay-points (repeat :clay))))))

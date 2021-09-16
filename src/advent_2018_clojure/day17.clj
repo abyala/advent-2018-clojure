@@ -1,6 +1,5 @@
 (ns advent-2018-clojure.day17
-  (:require [clojure.set :as set]
-            [clojure.string :as str]
+  (:require [clojure.string :as str]
             [advent-2018-clojure.point :as point]))
 
 (def water-spring [500 0])
@@ -25,7 +24,7 @@
      :max-y max-y}))
 
 (defn parse-board [input]
-  (let [clay-points (set (parse-input input))
+  (let [clay-points (parse-input input)
         {:keys [min-x max-x min-y max-y]} (bounded-box clay-points)]
     (into {} (concat (map vector (point/all-points [min-x min-y] [max-x max-y]) (repeat :sand))
                      (map vector clay-points (repeat :clay))))))
