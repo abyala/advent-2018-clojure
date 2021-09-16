@@ -239,7 +239,7 @@ water values above the highest clay value, which is... the minimum `y` value fro
 butchering the existing code, we'll just calculate it again.
 
 Given the board (initial or after running the water), use the `keep` function to extract out the `y` value for all
-points that are clay, and look search for the minimum.  Note the awesome structured destructuring of the map entries,
+points that are clay, and then search for the minimum.  Note the awesome structured destructuring of the map entries,
 which are of type `[[k v] t]`.
 
 ```clojure
