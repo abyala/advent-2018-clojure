@@ -37,7 +37,7 @@
 (defn move-down [[x y]]  [x (inc y)])
 
 (defn water? [t] (#{:flowing-water :resting-water} t))
-(defn supports-resting-water? [t] (#{:resting-water :clay} t))
+(defn stable? [t] (#{:resting-water :clay} t))
 
 (defn print-board [board]
   (let [lines (->> (group-by (comp second first) board)
@@ -55,7 +55,7 @@
     (letfn [(direction-rests? [p moving-fn]
               (cond
                 (= :clay (point-at p board)) true
-                (supports-resting-water? (point-at (move-down p) board)) (recur (moving-fn p) moving-fn)
+                (stable? (point-at (move-down p) board)) (recur (moving-fn p) moving-fn)
                 :else false))]
       (let [rests? (every? #(direction-rests? (% point) %) [move-left move-right])]
         (if rests?
@@ -66,10 +66,11 @@
   (loop [drips-to-check (list (move-down water-spring)) current-board board]
     (if-let [drip (first drips-to-check)]
       (let [below (move-down drip)
+            type-at (point-at drip current-board)
             type-below (point-at below current-board)]
         (cond
-          ; If this is clay or already resting water, don't overthink it.
-          (#{:resting-water :clay} (point-at drip current-board)) (recur (rest drips-to-check) current-board)
+          ; If this is a stable point, leave it alone.
+          (stable? type-at) (recur (rest drips-to-check) current-board)
 
           ; If there's sand below, we don't know anything. We may be flowing water now, but later could become
           ; resting water. Best to not make any decision yet and come back later after the lower cells resolve.
@@ -79,11 +80,11 @@
           (= :flowing-water type-below) (recur (rest drips-to-check) (assoc current-board drip :flowing-water))
 
           ; If the point below is "solid" (clay or resting), then check the neighbors
-          (supports-resting-water? type-below) (let [{:keys [rests? candidates]} (neighbor-cells drip current-board)]
+          (stable? type-below) (let [{:keys [rests? candidates]} (neighbor-cells drip current-board)]
                                                  (recur (apply conj (rest drips-to-check) candidates)
                                                         (assoc current-board drip (if rests? :resting-water :flowing-water))))
           ; Only the abyss below us
-          :else (recur (rest drips-to-check) (assoc current-board drip :flowing-water)) ))
+          :else (recur (rest drips-to-check) (assoc current-board drip :flowing-water))))
       current-board)))
 
 (defn smallest-y-coord [board]

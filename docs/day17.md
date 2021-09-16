@@ -105,14 +105,15 @@ Anyway, I also created `move-left`, `move-right`, and `move-down` since we'll be
 (defn move-down [[x y]]  [x (inc y)])
 ```
 
-Additionally, I created `water?` and `supports-resting-water?` functions to define the capabilities of different
+Additionally, I created `water?` and `stable?` functions to define the capabilities of different
 types of terrain. Part 1 will require counting all points that have water, which means both flowing and resting water.
 And in a moment we'll need to recognize that resting water can sit on top of clay or more resting water, but cannot
-itself sit on top of either sand (it should drop) or flowing water (the flowing water would flow away).
+itself sit on top of either sand (it should drop) or flowing water (the flowing water would flow away), so `stable?`
+defines the types on which resting water can sit..
 
 ```clojure
 (defn water? [t] (#{:flowing-water :resting-water} t))
-(defn supports-resting-water? [t] (#{:resting-water :clay} t))
+(defn stable? [t] (#{:resting-water :clay} t))
 ```
 
 Finally, to help with diagnostics, I created a helper `print-board` function that isn't strictly needed, but which
@@ -135,7 +136,7 @@ I had either expressed the board as a vector of vectors, or a vector of strings.
 
 ### Calculations
 
-I'm going to skip the `neihbor-cells` function for a moment, and go straight to the most important function in the
+I'm going to skip the `neighbor-cells` function for a moment, and go straight to the most important function in the
 program, `run-water`.  Rather than returning a single changed state of the board, which would have been a much smarter
 move honestly, this takes a board, runs water all the way through it, and returns the resulting board state. It's not
 very difficult, once broken apart.
@@ -163,7 +164,7 @@ remain flowing water or become resting water, and we'll see how in the next two 
 return to this cell later, push the cell below onto the tack by `cons`ing it onto the front of `drips-to-check`.
 * If the cell below the current drip is flowing water, then the current cell must be flowing water that falls onto
 flowing water. So just like the first condition, pop this cell using `rest` and move on.
-* If the cell is otherwise flowing on top of a stable surface, as previously described by `supports-running-water?`,
+* If the cell is otherwise flowing on top of a stable surface, as previously described by `stable?`,
 then we need to examine the horizontal neighbors of this cell. If all the neighbors on both sides continue to sit on
 running water until they run into clay, then all of those cells are going to hold resting water. If either direction
 hits an unstable cell before reaching a stable one, then the whole row becomes flowing water. Note that in one of my
@@ -179,10 +180,11 @@ problem statement tells us is the last drop of running water along this path.
   (loop [drips-to-check (list (move-down water-spring)) current-board board]
     (if-let [drip (first drips-to-check)]
       (let [below (move-down drip)
+            type-at (point-at drip current-board)
             type-below (point-at below current-board)]
         (cond
-          ; If this is clay or already resting water, don't overthink it.
-          (#{:resting-water :clay} (point-at drip current-board)) (recur (rest drips-to-check) current-board)
+          ; If this is a stable point, leave it alone.
+          (stable? type-at) (recur (rest drips-to-check) current-board)
 
           ; If there's sand below, we don't know anything. We may be flowing water now, but later could become
           ; resting water. Best to not make any decision yet and come back later after the lower cells resolve.
@@ -192,11 +194,11 @@ problem statement tells us is the last drop of running water along this path.
           (= :flowing-water type-below) (recur (rest drips-to-check) (assoc current-board drip :flowing-water))
 
           ; If the point below is "solid" (clay or resting), then check the neighbors
-          (supports-resting-water? type-below) (let [{:keys [rests? candidates]} (neighbor-cells drip current-board)]
+          (stable? type-below) (let [{:keys [rests? candidates]} (neighbor-cells drip current-board)]
                                                  (recur (apply conj (rest drips-to-check) candidates)
                                                         (assoc current-board drip (if rests? :resting-water :flowing-water))))
           ; Only the abyss below us
-          :else (recur (rest drips-to-check) (assoc current-board drip :flowing-water)) ))
+          :else (recur (rest drips-to-check) (assoc current-board drip :flowing-water))))
       current-board)))
 ```  
 
@@ -220,7 +222,7 @@ reason to re-examine it.
     (letfn [(direction-rests? [p moving-fun]
               (cond
                 (= :clay (point-at p board)) true
-                (supports-resting-water? (point-at (move-down p) board)) (recur (moving-fun p) moving-fun)
+                (stable? (point-at (move-down p) board)) (recur (moving-fun p) moving-fun)
                 :else false))]
       (let [rests? (every? #(direction-rests? (% point) %) [move-left move-right])]
         (if rests?
