@@ -10,7 +10,7 @@
   678901234                        678901234
 0 ....+....                      0 ....+....
 1 .........                      1 ....|....
-2 .........     should become    2 ....|....
+2 .........     should become    2 ....|....  ignoring this line and above
 3 .#.......                      3 .#|||||||
 4 .#.#.#.#.                      4 .#~#~#~#|
 5 .#.###.#.                      5 .#~###~#|
@@ -23,7 +23,7 @@
   900                        900
   901                        901
 0 .+.                      0 .+.
-1 ...                      1 |||
+1 ...                      1 |||   ignoring this line and above
 2 .#.     should become    2 |#|"
   "x=500, y=2..2")
 
@@ -32,7 +32,7 @@
   999900000                        999900000
   678901234                        678901234
 0 ....+....                      0 ....+....
-1 .........                      1 ...|||...
+1 .........                      1 ...|||...   ignoring this line and above
 2 ....#....     should become    2 ||||#||||
 3 .#.#.#.#.                      3 |#~#.#~#|
 4 .#.....#.                      4 |#~~~~~#|
@@ -43,7 +43,7 @@
   445555                        445555
   990000                        990000
   890123                        890123
-0 ..+...                      0 ..+...
+0 ..+...                      0 ..+...   ignoring this line and above (nothing to ignore)
 1 .#..#.                      1 .#~~#.
 2 ..#.#.     should become    2 ..#~#.
 3 ..###.                      3 ..###."
@@ -54,7 +54,7 @@
   999900000                        999900000
   678901234                        678901234
 0 ....+....                      0 ....+....
-1 .........                      1 ..|||||..
+1 .........                      1 ..|||||..   ignoring this line and above
 2 ...###...     should become    2 ..|###|..
 3 .........                      3 |||||||||
 4 .#.....#.                      4 |#~~~~~#|
@@ -66,7 +66,7 @@
   999900000                        999900000
   678901234                        678901234
 0 ....+....                      0 ....+....
-1 .........                      1 ..|||||..
+1 .........                      1 ..|||||..   ignoring this line and above
 2 ...###...     should become    2 ..|###|..
 3 ....#....                      3 ||||#||||
 4 .#.....#.                      4 |#~~~~~#|
@@ -78,7 +78,7 @@
   999000000                        999000000
   789012345                        789012345
 0 ...+.....                      0 ...+.....
-1 .........                      1 ...|.....
+1 .........                      1 ...|.....   ignoring this line and above
 2 .....#...     should become    2 ..|||#...
 3 ...#.#...                      3 |||#~#...
 4 .#..##...                      4 |#~~##...
@@ -90,12 +90,12 @@
 
 (deftest part1-test
   (is (= 57 (part1 TEST_DATA)))
-  (is (= 23 (part1 NESTED_BUCKETS)))
-  (is (= 24 (part1 DOUBLE_DROP)))
+  (is (= 21 (part1 NESTED_BUCKETS)))
+  (is (= 21 (part1 DOUBLE_DROP)))
   (is (= 3 (part1 FULLY_ENCLOSED)))
-  (is (= 25 (part1 TWO_DRIPS_TO_SAME_TARGET)))
-  (is (= 24 (part1 TWO_DRIPS_TO_SAME_TARGET_WITH_DIVIDER)))
-  #_(is (not= 2147 (part1 PUZZLE_DATA))))
+  (is (= 20 (part1 TWO_DRIPS_TO_SAME_TARGET)))
+  (is (= 19 (part1 TWO_DRIPS_TO_SAME_TARGET_WITH_DIVIDER)))
+  (is (= 50838 (part1 PUZZLE_DATA))))
 
 (deftest run-water-test
   (are [input expected-points] (= (set expected-points)
@@ -119,5 +119,6 @@
                                                      [497 5] [500 5] [501 5] [502 5] [503 5]
                                                      [497 6]]))
 
-; The answer should be LARGER than 2147
-; The answer IS NOT 50842 or 50841
+(deftest part2-test
+  (is (= 29 (part2 TEST_DATA)))
+  (is (= 43039 (part2 PUZZLE_DATA))))
