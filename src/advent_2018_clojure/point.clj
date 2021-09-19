@@ -1,4 +1,5 @@
-(ns advent-2018-clojure.point)
+(ns advent-2018-clojure.point
+  (:require [clojure.string :as str]))
 
 (defn distance [[x1 y1] [x2 y2]]
   (+ (Math/abs ^long (- x1 x2))
@@ -25,3 +26,19 @@
    [(dec x) y]
    [(inc x) y]
    [x (inc y)]])
+
+(defn surrounding-points [[x y]]
+  (for [y' (map #(+ y %) [-1 0 1])
+        x' (map #(+ x %) [-1 0 1])
+        :when (or (not= x x') (not= y y'))]
+    [x' y']))
+
+(defn print-grid [board drawing-fn]
+  (let [lines (->> (group-by (comp second first) board)
+                   (sort-by first)
+                   (map second))
+        line-strings (map (fn [line] (->> (sort-by ffirst line)
+                                          (map (comp drawing-fn second))
+                                          (apply str)))
+                          lines)]
+    (println (str/join "\n" line-strings))))
