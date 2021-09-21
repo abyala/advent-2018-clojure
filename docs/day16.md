@@ -10,6 +10,13 @@ identity problem. Overall, this was a very straightforward problem I round rathe
 
 ---
 
+## Note
+
+I did a major rewrite of Day 16 when I moved on to Day 19.  The code below should still work, but it no longer
+represents my solution in Git. I wouldn't be surprised if both Day 16 and 19 get updated by another puzzle coming up!
+
+---
+
 ## Part 1
 
 ### Defining the operations
