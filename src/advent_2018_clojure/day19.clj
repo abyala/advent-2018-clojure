@@ -1,12 +1,12 @@
 (ns advent-2018-clojure.day19
   (:require [clojure.string :as str]
-            [advent-2018-clojure.wrist-device :as device]))
+            [advent-2018-clojure.wrist-device :as device]
+            [clojure.edn :as edn]))
 
 (def empty-registers [0 0 0 0 0])
 
 (defn parse-instruction [text]
-  (let [[op a b c] (str/split text #" ")]
-    [(keyword op) (Integer/parseInt a) (Integer/parseInt b) (Integer/parseInt c)]))
+  (edn/read-string (str "[:" text "]")))
 
 (defn parse-device [input]
   (let [[ip-text & instruction-text] (str/split-lines input)

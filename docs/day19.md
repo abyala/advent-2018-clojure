@@ -179,16 +179,16 @@ With a working wrist device, let's go solve Day 19!
 
 The data set we read defines an `ip-register` once in the very first line, and then just has a list of instructions.
 So after defining that a Day 19 device has 5 registers (one for the `ip-register` and then the regular 4 others), we
-parse the data. `parse-instruction` takes a single line, splits it by spaces, and keeps the keyword version of the `op`
-and the integer versions of the others. Since the default mapping of operations in the wrist device is from its keyword
-to its function, `(keyword op)` lines us up nicely.
+parse the data. `parse-instruction` takes a single line of text and wants to return a vector of the operation as a
+keyword, followed by three integers, so we again use `edn/read-string` by surrounding the whole string with square
+brackets and inject a colon before the first value so it becomes a keyword.
+ 
 
 ```clojure
 (def register-count 5)
 
 (defn parse-instruction [text]
-  (let [[op a b c] (str/split text #" ")]
-    [(keyword op) (Integer/parseInt a) (Integer/parseInt b) (Integer/parseInt c)]))
+  (edn/read-string (str "[:" text "]")))
 ```
 
 Parsing the entire file takes a tiny bit of extra work. We split the input data by line, destructuring those lines
