@@ -65,15 +65,16 @@
     (assoc-in device [:registers c] ((get-op device op) regs a b))))
 
 (defn run-operation [device]
-  (if-not (halted? device)
+  (when-not (halted? device)
     (-> device
         load-instruction-pointer
         run-operation-at-instruction-pointer
         store-instruction-pointer
-        inc-instruction-pointer)
-    device))
+        inc-instruction-pointer)))
+
+(defn run-all-steps [device]
+  (->> (iterate run-operation device)
+       (take-while some?)))
 
 (defn run-to-completion [device]
-  (->> (iterate run-operation device)
-       (filter halted?)
-       first))
+  (-> device run-all-steps last))

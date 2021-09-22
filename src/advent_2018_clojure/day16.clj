@@ -35,7 +35,7 @@
                        (filter #(= after (-> (device/create-device before
                                                                    [[op a b c]]
                                                                    :operations {op (device/operation-named %)})
-                                             (device/run-operation)
+                                             (device/run-to-completion)
                                              (device/registers))))
                        set))))
 

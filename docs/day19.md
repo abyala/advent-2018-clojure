@@ -145,29 +145,32 @@ of the registers, but I found that solution to be uglier.
     (update device :registers #(assoc % c ((get-op device op) % a b)))))
 ```
 
-Two functions left -- one to execute a single operation, and then one to run the full program. To run a single
-operation, in the function `run-operation`, we first ensure the program hasn't halted yet. If it hasn't, then we go
-through a nice set of tiny functions in order: from the device, load the `ip` (if appropriate),
-run the operation where it currently sits, store the `ip` (if appropriate), and increment the `ip`. This, to me,
-is the functional programming at its best.
+Three functions left -- one to execute a single operation, one to run the program through all of its steps, and one to
+return the final state of the program. To run a single operation, in the function `run-operation`, we first ensure the
+program hasn't halted yet. If it hasn't, then we go through a nice set of tiny functions in order: from the device,
+load the `ip` (if appropriate), run the operation where it currently sits, store the `ip` (if appropriate), and
+increment the `ip`. This, to me, is the functional programming at its best.
 
-Then to run the program until it halts, we infinitely call `run-operation` from the original device, wait until it
-halts, and then return the first device value back.
+Then, to run through all of the program's steps, we infinitely call `run-operation` from the original device, taking
+all non-`nil` values, since `run-operation` returns `nil` if the input `device` has halted.
+
+Finally, we take the last step from calling `run-all-steps` to get back the end state.
 
 ```clojure
 (defn run-operation [device]
-  (if-not (halted? device)
+  (when-not (halted? device)
     (-> device
         load-instruction-pointer
         run-operation-at-instruction-pointer
         store-instruction-pointer
-        inc-instruction-pointer)
-    device))
+        inc-instruction-pointer)))
+
+(defn run-all-steps [device]
+  (->> (iterate run-operation device)
+       (take-while some?)))
 
 (defn run-to-completion [device]
-  (->> (iterate run-operation device)
-       (filter halted?)
-       first))
+  (-> device run-all-steps last))
 ```
 
 With a working wrist device, let's go solve Day 19!
