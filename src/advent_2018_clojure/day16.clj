@@ -4,7 +4,7 @@
             [advent-2018-clojure.wrist-device :as device]
             [advent-2018-clojure.utils :as utils]))
 
-(def register-count 4)
+(def empty-registers [0 0 0 0])
 
 (defn parse-sample [sample]
   (let [[_ before op a b c after] (re-find #"Before: (\[.*\])\n(\d+) (\d+) (\d+) (\d+)\nAfter:  (.*)" sample)]
@@ -32,9 +32,8 @@
   ([sample] (operator-matches sample device/operation-ids))
   ([sample ops] (let [{:keys [before op a b c after]} sample]
                   (->> ops
-                       (filter #(= after (-> (device/create-device register-count
+                       (filter #(= after (-> (device/create-device before
                                                                    [[op a b c]]
-                                                                   :registers before
                                                                    :operations {op (device/operation-named %)})
                                              (device/run-operation)
                                              (device/registers))))
@@ -65,7 +64,7 @@
       solved)))
 
 (defn run-program [opcodes test-program]
-  (device/run-to-completion (device/create-device register-count
+  (device/run-to-completion (device/create-device empty-registers
                                                   test-program
                                                  :operations (utils/update-values opcodes device/operation-named))))
 

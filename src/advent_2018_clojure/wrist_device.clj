@@ -29,9 +29,9 @@
 (def operation-ids (keys operations))
 (defn operation-named [name] (operations name))
 
-(defn create-device [num-registers instructions & {:keys [registers operations ip-register]
-                                                   :or {operations operations ip-register nil}}]
-  {:registers (or registers (mapv (constantly 0) (range num-registers)))
+(defn create-device [registers instructions & {:keys [operations ip-register]
+                                               :or {operations operations ip-register nil}}]
+  {:registers registers
    :instructions instructions
    :operations operations
    :ip-register ip-register

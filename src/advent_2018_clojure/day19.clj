@@ -2,7 +2,7 @@
   (:require [clojure.string :as str]
             [advent-2018-clojure.wrist-device :as device]))
 
-(def register-count 5)
+(def empty-registers [0 0 0 0 0])
 
 (defn parse-instruction [text]
   (let [[op a b c] (str/split text #" ")]
@@ -11,7 +11,7 @@
 (defn parse-device [input]
   (let [[ip-text & instruction-text] (str/split-lines input)
         ip-register (Integer/parseInt (subs ip-text 4))]
-    (device/create-device register-count
+    (device/create-device empty-registers
                           (mapv parse-instruction instruction-text)
                           :ip-register ip-register)))
 

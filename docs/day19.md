@@ -62,26 +62,18 @@ is a sequence of those keywords.  And `operation-named` looks up an `operation` 
 ```
 
 Next, I created a factory function to create a wrist device, using Clojure's equivalent of optional function arguments.
-The `create-device` function always takes in the number of registers it uses, as well as the vector of instructions it
+The `create-device` function always takes in the initial registers, as well as the vector of instructions it
 will process. Then any additional values, expressed as an ampersand to mean `rest`, can be treated as a map of values.
-The function supports three optional parameters - `registers` for its starting register vector; `operations`, a
-mapping of how each operation name is associated to its implemented function; and `ip-register`, the new concept in
-Day 19. Because the `rest` arguments come in as a vector, Clojure can treat it as a map with `:keys`, which it can then
-`or` with default values. In this case the `operations` map I defined above and a `nil` `ip-register` for when it's
-not needed. Note that my overloaded use of `operations` is quite terrible.
-
-What about the default value for the registers? I can't define it in the `:or` clause, since it depends on the value
-of another argument, namely the `num-registers` argument. It's no problem - when defining the `:registers` mapping,
-just use an `or` here; I could have done the same with the other arguments, but this is more concise. The other
-interesting part of this function is the use of `constantly`, which always returns a single value. The expression
-`(mapv (constantly 0) (range num-registers))` initializes a vector of length `num-registers` to the value zero by 
-mapping the `(range num-registers)` to the value zero and returning it as a vector. In Java, you would do the same
-with `int[num-registers]`, but that wouldn't work if you wanted to initiatlize all values to a different value.
+The function supports two optional parameters - `operations`, a mapping of how each operation name is associated to its
+implemented function, and `ip-register`, the new concept in Day 19. Because the `rest` arguments come in as a vector,
+Clojure can treat it as a map with `:keys`, which it can then `or` with default values. In this case the `operations`
+map I defined above and a `nil` `ip-register` for when it's not needed. Note that my overloaded use of `operations` is
+quite terrible.
 
 ```clojure
-(defn create-device [num-registers instructions & {:keys [operations ip-register]
-                                                   :or {operations operations ip-register nil}}]
-  {:registers (mapv (constantly 0) (range num-registers))
+(defn create-device [registers instructions & {:keys [operations ip-register]
+                                               :or {operations operations ip-register nil}}]
+  {:registers registers
    :instructions instructions
    :operations operations
    :ip-register ip-register
@@ -209,10 +201,12 @@ input, so here we leverage the optional arguments we implemented in `create-devi
 a simple `parse-device` function:
 
 ```clojure
+(def empty-registers [0 0 0 0 0])
+
 (defn parse-device [input]
   (let [[ip-text & instruction-text] (str/split-lines input)
         ip-register (Integer/parseInt (subs ip-text 4))]
-    (device/create-device register-count
+    (device/create-device empty-registers
                           (mapv parse-instruction instruction-text)
                           :ip-register ip-register)))
 ```
@@ -267,9 +261,8 @@ and compare that to the `after` vector.
   ([sample] (operator-matches sample device/operation-ids))
   ([sample ops] (let [{:keys [before op a b c after]} sample]
                   (->> ops
-                       (filter #(= after (-> (device/create-device register-count
+                       (filter #(= after (-> (device/create-device before
                                                                    [[op a b c]]
-                                                                   :registers before
                                                                    :operations {op (device/operation-named %)})
                                              (device/run-operation)
                                              (device/registers))))
@@ -284,8 +277,10 @@ in that map to its underlying function. The utility function `update-values` doe
 helper function `device/operation-named`. 
 
 ```clojure
+(def empty-registers [0 0 0 0])
+
 (defn run-program [opcodes test-program]
-  (device/run-to-completion (device/create-device register-count
+  (device/run-to-completion (device/create-device empty-registers
                                                   test-program
                                                  :operations (utils/update-values opcodes device/operation-named))))
 ```
