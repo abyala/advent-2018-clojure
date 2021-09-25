@@ -21,11 +21,13 @@
 
 (def point-sort (juxt second first))
 
-(defn adjacent-points [[x y]]
-  [[x (dec y)]
-   [(dec x) y]
-   [(inc x) y]
-   [x (inc y)]])
+(defn move-north [[x y]] [x (inc y)])
+(defn move-south [[x y]] [x (dec y)])
+(defn move-east [[x y]] [(inc x) y])
+(defn move-west [[x y]] [(dec x) y])
+
+(defn adjacent-points [point]
+  ((juxt move-north move-west move-east move-south) point))
 
 (defn surrounding-points [[x y]]
   (for [y' (map #(+ y %) [-1 0 1])
