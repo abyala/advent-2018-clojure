@@ -1,6 +1,7 @@
 (ns advent-2018-clojure.point
   (:require [clojure.string :as str]))
 
+(def origin [0 0])
 (defn distance [[x1 y1] [x2 y2]]
   (+ (Math/abs ^long (- x1 x2))
      (Math/abs ^long (- y1 y2))))
@@ -25,6 +26,8 @@
 (defn move-south [[x y]] [x (dec y)])
 (defn move-east [[x y]] [(inc x) y])
 (defn move-west [[x y]] [(dec x) y])
+(def move-up move-south)
+(def move-down move-north)
 
 (defn adjacent-points [point]
   ((juxt move-north move-west move-east move-south) point))
