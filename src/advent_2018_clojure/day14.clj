@@ -1,41 +1,37 @@
 (ns advent-2018-clojure.day14
-  (:require [advent-2018-clojure.utils :refer [str->ints]]
-            [clojure.string :as str]))
+  (:require [clojure.string :as str]))
 
-(def initial-state {:recipes [3 7], :elves [0 1]})
+(def initial-state {:scores [3 7] :elves  [0 1]})
 
-(defn add-next-recipe [{:keys [recipes elves] :as state}]
-  (let [next-recipe (apply + (map #(recipes %) elves))]
-    (update state :recipes #(apply conj % (str->ints next-recipe)))))
+(defn int-digits [n]
+  (mapv #(Integer/parseInt (str %))
+        (str n)))
 
-(defn move-elves [{:keys [recipes elves] :as state}]
-  (assoc state :elves (mapv #(mod (+ % 1 (recipes %))
-                                  (count recipes))
-                            elves)))
+(defn next-turn [{:keys [scores elves] :as state}]
+  (let [new-recipes (->> (map #(get scores %) elves)
+                         (apply +)
+                         (int-digits))
+        new-scores (apply conj scores new-recipes)
+        new-elves (mapv #(mod (+ % (scores %) 1)
+                              (count new-scores))
+                        elves)]
+    (assoc state :scores new-scores :elves new-elves)))
 
-(defn next-turn [state]
-  (-> state add-next-recipe move-elves))
+(def recipe-seq
+  (map #(apply str (:scores %))
+       (iterate next-turn initial-state)))
 
-(defn part1 [input-recipes]
-  (let [target-recipes (+ input-recipes 10)]
-    (->> (iterate next-turn initial-state)
-         (map :recipes)
-         (drop-while #(< (count %) target-recipes))
-         first
-         (drop input-recipes)
-         (take 10)
-         (apply str))))
-
-(defn num-recipes-before [state target]
-  (let [recipes (:recipes state)
-        num-recipes (count recipes)
-        last-n (inc (count target))]
-    (when (>= num-recipes last-n)
-      (let [s (apply str (subvec recipes (- num-recipes last-n)))]
-        (when-let [idx (str/index-of s target)]
-          (+ num-recipes idx (- last-n)))))))
-
-(defn part2 [input-recipes]
+(defn part1 [num-recipes]
   (->> (iterate next-turn initial-state)
-       (keep #(num-recipes-before % input-recipes))
+       (drop-while #(< (count (:scores %))
+                       (+ num-recipes 10)))
+       first
+       :scores
+       (drop num-recipes)
+       (take 10)
+       (apply str)))
+
+(defn part2 [target]
+  (->> recipe-seq
+       (keep #(str/index-of % target))
        first))
