@@ -2,7 +2,7 @@
   (:require [clojure.test :refer :all]
             [advent-2018-clojure.day15 :refer :all]))
 
-(def PUZZLE_DATA (slurp "resources/advent_2018_clojure/day15_data.txt"))
+(def puzzle-input (slurp "resources/advent_2018_clojure/day15_data.txt"))
 
 (deftest part1-test
   (testing "Test data"
@@ -14,5 +14,5 @@
                           28944 "#######\n#.E...#\n#.#..G#\n#.###.#\n#E#G#G#\n#...#G#\n#######"
                           18740 "#########\n#G......#\n#.E.#...#\n#..##..G#\n#...##..#\n#...#...#\n#.G...G.#\n#.....G.#\n#########"))
 
-  #_(testing "Puzzle data"
-    (is (= -1 (part1 PUZZLE_DATA)))))
+  (testing "Puzzle data"
+    (is (= -1 (part1 puzzle-input)))))
